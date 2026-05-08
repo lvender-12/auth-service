@@ -8,7 +8,7 @@ pub struct UserEntity {
     pub nim: String,
     pub name: String,
     pub email: Option<String>,
-    pub password_hash: String,
+    pub password: String,
     pub role_id: Option<i32>,
     pub created_at: NaiveDateTime,
 }
