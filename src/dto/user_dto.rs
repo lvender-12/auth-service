@@ -66,6 +66,7 @@ pub struct UserResponseDto {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Validate)]
+
 pub struct LoginUserDto {
     #[validate(length(min = 5, max = 20, message = "nim must be between 5 and 20 characters"))]
     pub nim: String,
@@ -74,9 +75,15 @@ pub struct LoginUserDto {
     pub password: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Deserialize, Validate)]
+pub struct LoginDto {
+    #[validate(length(min = 5, max = 20, message = "nim must be between 5 and 20 characters"))]
+    pub nim: String,
+    #[validate(length(min = 8, message = "password minimum length is 8"))]
+    pub password: String,
+}
+
+#[derive(Debug, Serialize)]
 pub struct LoginResponseDto {
-    pub access_token: String,
-    pub token_type: String,
-    pub user: UserResponseDto,
+    pub token: String,
 }

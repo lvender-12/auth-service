@@ -46,3 +46,13 @@ pub async fn check_user_exists(nim: &str, email: Option<&str>) -> Result<bool, R
 
     Ok(exists)
 }
+
+pub async fn login_user_repo(nim: &str) -> Result<UserEntity, RepoError> {
+    let pool = db_connection().await?;
+    let user = sqlx::query_as::<_, UserEntity>("SELECT * FROM users WHERE nim = $1")
+        .bind(nim)
+        .fetch_one(&pool)
+        .await?;
+
+    Ok(user)
+}

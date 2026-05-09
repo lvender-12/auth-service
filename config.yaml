@@ -10,3 +10,9 @@ database:
   name: kampus
   username: lvender
   password: 181205
+
+jwt:
+  secret: gdsgsdgsesesgesgvbsddc
+
+api:
+  secret: wafevewtnewstngserehybtw

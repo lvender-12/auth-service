@@ -4,6 +4,8 @@ use serde::Deserialize;
 pub struct ConfigModel {
     pub app: AppConfig,
     pub database: DatabaseConfig,
+    pub jwt: JwtConfig,
+    pub api: ApiConfig,
 }
 
 #[derive(Debug, Deserialize)]
@@ -21,4 +23,14 @@ pub struct DatabaseConfig {
     pub name: String,
     pub username: String,
     pub password: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct JwtConfig {
+    pub secret: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ApiConfig {
+    pub secret: String,
 }

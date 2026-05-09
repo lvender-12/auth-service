@@ -1,3 +1,4 @@
+use crate::errors::services_error::ServiceError;
 use axum::{
     Json,
     http::StatusCode,
@@ -6,8 +7,6 @@ use axum::{
 use serde_json::json;
 use thiserror::Error;
 use validator::ValidationErrors;
-
-use crate::errors::services_error::ServiceError;
 
 #[derive(Debug, Error)]
 pub enum ApiError {
@@ -20,8 +19,14 @@ pub enum ApiError {
     #[error("Bad request: {0}")]
     BadRequest(String),
 
+    #[error("Unauthorized: {0}")]
+    Unauthorized(String), // ← tambah
+
+    #[error("Method not allowed")]
+    MethodNotAllowed, // ← tambah
+
     #[error("Validation error")]
-    Validation(#[from] ValidationErrors), // ← tambah ini
+    Validation(#[from] ValidationErrors),
 
     #[error("Internal server error")]
     Internal,
@@ -32,6 +37,7 @@ impl From<ServiceError> for ApiError {
         match e {
             ServiceError::UserNotFound => ApiError::NotFound(e.to_string()),
             ServiceError::UserAlreadyExists => ApiError::Conflict(e.to_string()),
+            ServiceError::InvalidCredentials => ApiError::Unauthorized(e.to_string()), // ← tambah
             ServiceError::PasswordError => ApiError::Internal,
             ServiceError::Unexpected(_) => ApiError::Internal,
         }
@@ -44,6 +50,11 @@ impl IntoResponse for ApiError {
             ApiError::NotFound(msg) => (StatusCode::NOT_FOUND, msg.clone()),
             ApiError::Conflict(msg) => (StatusCode::CONFLICT, msg.clone()),
             ApiError::BadRequest(msg) => (StatusCode::BAD_REQUEST, msg.clone()),
+            ApiError::Unauthorized(msg) => (StatusCode::UNAUTHORIZED, msg.clone()), // ← tambah
+            ApiError::MethodNotAllowed => (
+                StatusCode::METHOD_NOT_ALLOWED,
+                "Method not allowed".to_string(),
+            ), // ← tambah
             ApiError::Internal => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "Internal server error".to_string(),
@@ -60,7 +71,6 @@ impl IntoResponse for ApiError {
                         (field.to_string(), messages)
                     })
                     .collect::<std::collections::HashMap<_, _>>();
-
                 return (
                     StatusCode::UNPROCESSABLE_ENTITY,
                     Json(json!({
@@ -73,7 +83,6 @@ impl IntoResponse for ApiError {
                     .into_response();
             }
         };
-
         (
             status,
             Json(json!({
