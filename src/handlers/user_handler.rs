@@ -4,18 +4,16 @@ use validator::Validate;
 
 use crate::{
     dto::user_dto::{CreateUserDto, UserResponseDto},
+    errors::api_error::ApiError,
     services::user_service::register_user,
 };
 
 pub async fn register_handler(
     Json(dto): Json<CreateUserDto>,
-) -> Result<(StatusCode, Json<UserResponseDto>), (StatusCode, String)> {
-    dto.validate()
-        .map_err(|e| (StatusCode::BAD_REQUEST, e.to_string()))?;
+) -> Result<(StatusCode, Json<UserResponseDto>), ApiError> {
+    dto.validate()?;
 
-    let user = register_user(dto)
-        .await
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+    let user = register_user(dto).await?;
 
     Ok((StatusCode::CREATED, Json(user)))
 }

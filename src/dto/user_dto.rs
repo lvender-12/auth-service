@@ -23,7 +23,14 @@ pub struct CreateUserDto {
 
     #[validate(length(min = 8, message = "password minimum length is 8"))]
     pub password: String,
+}
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CreateUserRepoDto {
+    pub nim: String,
+    pub name: String,
+    pub email: Option<String>,
+    pub password: String,
     pub role_id: Option<i32>,
 }
 

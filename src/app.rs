@@ -1,6 +1,6 @@
 use axum::Router;
 
-use crate::routes;
+use crate::routes::user_routes;
 pub async fn create_app() -> Router {
-    Router::new().merge(routes::user::routes())
+    Router::new().merge(user_routes())
 }

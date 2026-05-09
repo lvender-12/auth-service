@@ -1,12 +1,11 @@
+use sqlx::{Pool, Postgres, postgres::PgPoolOptions};
 use std::time::Duration;
 
-use anyhow::Result;
-use sqlx::{Pool, Postgres, postgres::PgPoolOptions};
-
 use crate::config::config::load_config;
+use crate::errors::db_error::DbError;
 
-pub async fn db_connection() -> Result<Pool<Postgres>> {
-    let config = load_config().await?;
+pub async fn db_connection() -> Result<Pool<Postgres>, DbError> {
+    let config = load_config().await;
     let url = format!(
         "postgresql://{}:{}@{}:{}/{}",
         config.database.username,

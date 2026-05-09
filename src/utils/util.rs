@@ -1,10 +1,11 @@
-use anyhow::Result;
 use argon2::{
     Argon2, PasswordHasher,
     password_hash::{SaltString, rand_core::OsRng},
 };
 
-pub fn password_hash(password: String) -> Result<String> {
+use crate::errors::utils_error::UtilError;
+
+pub fn password_hash(password: String) -> Result<String, UtilError> {
     let salt = SaltString::generate(&mut OsRng);
     let argon = Argon2::default();
 
