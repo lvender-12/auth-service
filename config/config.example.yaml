@@ -1,0 +1,15 @@
+app:
+  name: kampus-auth
+  host: localhost
+  port: 3000
+db:
+  host: localhost
+  port: 3306
+  username: root
+  password: your_password
+  name: kampus
+jwt:
+  secret: your_jwt_secret
+  expiry: 86400
+api:
+  secret: your_api_secret
