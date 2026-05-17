@@ -7,40 +7,28 @@ use thiserror::Error;
 pub enum AppError {
     #[error("Database error")]
     Db(#[from] sqlx::Error),
-
     #[error("Validation error")]
     ValidationError(#[from] validator::ValidationErrors),
-
     #[error("Password hashing error")]
     HashError(#[from] PasswordHashError),
-
     #[error("Config error: {0}")]
     ConfigError(#[from] config::ConfigError),
-
     #[error("Chrono error: {0}")]
     ChronoError(#[from] chrono::ParseError),
-
     #[error("JWT error: {0}")]
     JwtError(#[from] jsonwebtoken::errors::Error),
-
     #[error("Cookie error")]
     CookieError,
-
     #[error("Data not found")]
     NotFound,
-
     #[error("Unauthorized access")]
     Unauthorized,
-
     #[error("Internal server error")]
     InternalServerError,
-
     #[error("Bad request")]
     BadRequest,
-
-    #[error("Conflict")]
-    Conflict,
-
+    #[error("{0} already exists")]
+    Conflict(String),
     #[error("Forbidden access")]
     Forbidden,
 }
@@ -48,8 +36,7 @@ pub enum AppError {
 impl IntoResponse for AppError {
     fn into_response(self) -> axum::response::Response {
         match self {
-            AppError::Db(e) => {
-                eprintln!("DB ERROR: {:?}", e);
+            AppError::Db(_) => {
                 (StatusCode::INTERNAL_SERVER_ERROR, "Database error").into_response()
             }
             AppError::NotFound => (StatusCode::NOT_FOUND, "Data not found").into_response(),
@@ -60,29 +47,30 @@ impl IntoResponse for AppError {
                 (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error").into_response()
             }
             AppError::BadRequest => (StatusCode::BAD_REQUEST, "Bad request").into_response(),
-            AppError::Conflict => (StatusCode::CONFLICT, "Conflict").into_response(),
+            AppError::Conflict(msg) => (StatusCode::CONFLICT, msg).into_response(),
             AppError::ValidationError(e) => {
-                eprintln!("Validation ERROR: {:?}", e);
-                (StatusCode::BAD_REQUEST, "Validation error").into_response()
+                let messages: Vec<String> = e
+                    .field_errors()
+                    .iter()
+                    .flat_map(|(field, errors)| {
+                        errors.iter().map(move |err| {
+                            format!("{}: {}", field, err.message.as_deref().unwrap_or("invalid"))
+                        })
+                    })
+                    .collect();
+                (StatusCode::BAD_REQUEST, messages.join(", ")).into_response()
             }
-            AppError::HashError(e) => {
-                eprintln!("Hashing ERROR: {:?}", e);
+            AppError::HashError(_) => {
                 (StatusCode::INTERNAL_SERVER_ERROR, "Password hashing error").into_response()
             }
-            AppError::ConfigError(e) => {
-                eprintln!("Config ERROR: {:?}", e);
+            AppError::ConfigError(_) => {
                 (StatusCode::INTERNAL_SERVER_ERROR, "Configuration error").into_response()
             }
-            AppError::ChronoError(e) => {
-                eprintln!("Chrono ERROR: {:?}", e);
+            AppError::ChronoError(_) => {
                 (StatusCode::INTERNAL_SERVER_ERROR, "Chrono error").into_response()
             }
-            AppError::JwtError(e) => {
-                eprintln!("JWT ERROR: {:?}", e);
-                (StatusCode::UNAUTHORIZED, "JWT error").into_response()
-            }
+            AppError::JwtError(_) => (StatusCode::UNAUTHORIZED, "Invalid token").into_response(),
             AppError::CookieError => {
-                eprintln!("Cookie ERROR");
                 (StatusCode::INTERNAL_SERVER_ERROR, "Cookie error").into_response()
             }
             AppError::Forbidden => (StatusCode::FORBIDDEN, "Forbidden access").into_response(),

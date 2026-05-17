@@ -2,13 +2,17 @@ use crate::{config::load_config, db::load_db, routes::app_routes};
 
 mod config;
 mod db;
+mod entity;
 mod errors;
+mod middleware;
 mod model;
+mod modules;
 mod routes;
+mod utils;
 
 #[tokio::main]
 async fn main() {
-    let app = app_routes().await;
+    let app = app_routes();
     let conf = load_config();
     load_db().await;
     let host = format!("{}:{}", conf.app.host, conf.app.port);

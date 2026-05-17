@@ -1,5 +1,7 @@
-use axum::{Router, routing::get};
+use axum::Router;
 
-pub async fn app_routes() -> Router {
-    Router::new().route("/", get(|| async { "Hello, World!" }))
+use crate::modules::admin::route::routes_admin;
+
+pub fn app_routes() -> Router {
+    Router::new().merge(routes_admin())
 }
