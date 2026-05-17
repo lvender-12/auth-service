@@ -1,5 +1,8 @@
 use serde::{Deserialize, Serialize};
+use sqlx::prelude::FromRow;
 use validator::Validate;
+
+use crate::entity::user_entity::UserWithRole;
 
 // CREATE
 #[derive(Debug, Deserialize, Validate)]
@@ -30,8 +33,8 @@ pub struct UpdateUserDto {
 }
 
 // READ — response
-#[derive(Debug, Serialize)]
-pub struct UserResponse {
+#[derive(Debug, Serialize, Clone, FromRow)]
+pub struct UserResponseDto {
     pub id: u64,
     pub name: String,
     pub email: String,
@@ -40,17 +43,29 @@ pub struct UserResponse {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct UserQuery {
+pub struct UserQueryDto {
     pub page: Option<u64>,
     pub limit: Option<u64>,
     pub search: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
-pub struct PaginatedUserResponse {
-    pub data: Vec<UserResponse>,
+pub struct PaginatedUserResponseDto {
+    pub data: Vec<UserResponseDto>,
     pub total: u64,
     pub page: u64,
     pub limit: u64,
     pub total_pages: u64,
+}
+
+impl From<UserWithRole> for UserResponseDto {
+    fn from(user: UserWithRole) -> Self {
+        UserResponseDto {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role_id: user.role_id,
+            role_name: user.role_name,
+        }
+    }
 }
