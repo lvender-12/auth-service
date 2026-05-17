@@ -9,8 +9,8 @@ pub struct User {
     pub email: String,
     pub password: String,
     pub role_id: u64,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow)]

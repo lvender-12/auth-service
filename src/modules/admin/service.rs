@@ -3,8 +3,8 @@ use validator::Validate;
 use crate::{
     errors::AppResult,
     modules::admin::{
-        dto::{CreateUserDto, PaginatedUserResponseDto, UserQueryDto},
-        repository::{create_admin_repository, find_user_repository},
+        dto::{CreateUserDto, PaginatedUserResponseDto, UpdateUserDto, UserQueryDto},
+        repository::{create_admin_repository, edit_user_repository, find_user_repository},
     },
     utils::hash::hash_password,
 };
@@ -32,4 +32,18 @@ pub async fn find_user_service(params: UserQueryDto) -> AppResult<PaginatedUserR
         limit,
         total_pages,
     })
+}
+
+pub async fn edit_user_service(body: UpdateUserDto, id: u64) -> AppResult<()> {
+    body.validate()?;
+    let body = if let Some(password) = body.password {
+        UpdateUserDto {
+            password: Some(hash_password(&password)?),
+            ..body
+        }
+    } else {
+        body
+    };
+    edit_user_repository(body, id).await?;
+    Ok(())
 }

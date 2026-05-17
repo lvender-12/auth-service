@@ -1,8 +1,8 @@
 use crate::{
     db::load_db,
-    entity::user_entity::UserWithRole,
+    entity::user_entity::{User, UserWithRole},
     errors::{AppError, AppResult},
-    modules::admin::dto::{CreateUserDto, UserQueryDto, UserResponseDto},
+    modules::admin::dto::{CreateUserDto, UpdateUserDto, UserQueryDto, UserResponseDto},
 };
 
 pub async fn create_admin_repository(body: CreateUserDto) -> AppResult<()> {
@@ -57,4 +57,23 @@ pub async fn find_user_repository(params: &UserQueryDto) -> AppResult<(Vec<UserW
     .map_err(AppError::Db)?;
 
     Ok((users, total as u64))
+}
+
+pub async fn edit_user_repository(body: UpdateUserDto, id: u64) -> AppResult<()> {
+    let pool = load_db().await;
+    let user = sqlx::query_as::<_, User>("SELECT * FROM users WHERE id = ?")
+        .bind(id)
+        .fetch_optional(&pool)
+        .await?
+        .ok_or(AppError::NotFound)?;
+
+    sqlx::query("UPDATE users SET name = ?, email = ?, password = ?, role_id = ? WHERE id = ?")
+        .bind(body.name.unwrap_or(user.name))
+        .bind(body.email.unwrap_or(user.email))
+        .bind(body.password.unwrap_or(user.password))
+        .bind(body.role_id.unwrap_or(user.role_id))
+        .bind(id)
+        .execute(&pool)
+        .await?;
+    Ok(())
 }
