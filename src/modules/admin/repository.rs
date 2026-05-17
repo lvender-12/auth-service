@@ -77,3 +77,19 @@ pub async fn edit_user_repository(body: UpdateUserDto, id: u64) -> AppResult<()>
         .await?;
     Ok(())
 }
+
+pub async fn delete_user_repository(id: u64) -> AppResult<()> {
+    let pool = load_db().await;
+
+    sqlx::query_as::<_, User>("SELECT * FROM users WHERE id = ?")
+        .bind(id)
+        .fetch_optional(&pool)
+        .await?
+        .ok_or(AppError::NotFound)?;
+
+    sqlx::query("DELETE FROM users WHERE id = ?")
+        .bind(id)
+        .execute(&pool)
+        .await?;
+    Ok(())
+}

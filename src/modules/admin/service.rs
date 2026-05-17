@@ -4,7 +4,10 @@ use crate::{
     errors::AppResult,
     modules::admin::{
         dto::{CreateUserDto, PaginatedUserResponseDto, UpdateUserDto, UserQueryDto},
-        repository::{create_admin_repository, edit_user_repository, find_user_repository},
+        repository::{
+            create_admin_repository, delete_user_repository, edit_user_repository,
+            find_user_repository,
+        },
     },
     utils::hash::hash_password,
 };
@@ -45,5 +48,10 @@ pub async fn edit_user_service(body: UpdateUserDto, id: u64) -> AppResult<()> {
         body
     };
     edit_user_repository(body, id).await?;
+    Ok(())
+}
+
+pub async fn delete_user_service(id: u64) -> AppResult<()> {
+    delete_user_repository(id).await?;
     Ok(())
 }

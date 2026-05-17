@@ -10,7 +10,9 @@ use crate::{
     errors::AppResult,
     modules::admin::{
         dto::{CreateUserDto, PaginatedUserResponseDto, UpdateUserDto, UserQueryDto},
-        service::{create_admin_service, edit_user_service, find_user_service},
+        service::{
+            create_admin_service, delete_user_service, edit_user_service, find_user_service,
+        },
     },
 };
 
@@ -37,4 +39,9 @@ pub async fn edit_user_handler(
 ) -> AppResult<(StatusCode, String)> {
     edit_user_service(body, id).await?;
     Ok((StatusCode::OK, "Berhasil edit data".to_string()))
+}
+
+pub async fn delete_user_handler(Path(id): Path<u64>) -> AppResult<(StatusCode, String)> {
+    delete_user_service(id).await?;
+    Ok((StatusCode::OK, "Berhasil hapus data".to_string()))
 }
