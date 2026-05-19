@@ -11,6 +11,8 @@ pub fn routes_admin() -> Router {
     Router::new()
         .route("/admin/create", post(create_admin_handler))
         .route("/admin/users", get(find_user_handler))
-        .route("/admin/users/{id}", put(edit_user_handler))
-        .route("/admin/users/{id}", delete(delete_user_handler))
+        .route(
+            "/admin/users/{id}",
+            put(edit_user_handler).delete(delete_user_handler),
+        )
 }
