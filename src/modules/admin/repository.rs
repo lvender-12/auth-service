@@ -2,7 +2,7 @@ use crate::{
     db::load_db,
     entity::user_entity::{User, UserWithRole},
     errors::{AppError, AppResult},
-    modules::admin::dto::{CreateUserDto, UpdateUserDto, UserQueryDto, UserResponseDto},
+    modules::admin::dto::{CreateUserDto, UpdateUserDto, UserQueryDto},
 };
 
 pub async fn create_admin_repository(body: CreateUserDto) -> AppResult<()> {
