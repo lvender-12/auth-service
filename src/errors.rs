@@ -17,15 +17,15 @@ pub enum AppError {
     #[error("JWT error: {0}")]
     JwtError(#[from] jsonwebtoken::errors::Error),
     #[error("Cookie error")]
-    CookieError,
+    _CookieError,
     #[error("Data not found")]
     NotFound,
     #[error("Unauthorized access")]
     Unauthorized,
     #[error("Internal server error")]
-    InternalServerError,
+    _InternalServerError,
     #[error("Bad request")]
-    BadRequest,
+    _BadRequest,
     #[error("{0} already exists")]
     Conflict(String),
     #[error("Forbidden access")]
@@ -42,10 +42,10 @@ impl IntoResponse for AppError {
             AppError::Unauthorized => {
                 (StatusCode::UNAUTHORIZED, "Unauthorized access").into_response()
             }
-            AppError::InternalServerError => {
+            AppError::_InternalServerError => {
                 (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error").into_response()
             }
-            AppError::BadRequest => (StatusCode::BAD_REQUEST, "Bad request").into_response(),
+            AppError::_BadRequest => (StatusCode::BAD_REQUEST, "Bad request").into_response(),
             AppError::Conflict(msg) => (StatusCode::CONFLICT, msg).into_response(),
             AppError::ValidationError(e) => {
                 eprintln!("Validation ERROR: {:?}", e);
@@ -76,7 +76,7 @@ impl IntoResponse for AppError {
                 eprintln!("JWT ERROR: {:?}", e);
                 (StatusCode::UNAUTHORIZED, "Invalid token").into_response()
             }
-            AppError::CookieError => {
+            AppError::_CookieError => {
                 eprintln!("Cookie ERROR");
                 (StatusCode::INTERNAL_SERVER_ERROR, "Cookie error").into_response()
             }

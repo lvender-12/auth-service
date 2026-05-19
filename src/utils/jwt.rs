@@ -1,5 +1,5 @@
 use chrono::{Duration, Utc};
-use jsonwebtoken::{EncodingKey, Header, encode};
+use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use serde::{Deserialize, Serialize};
 
 use crate::{config::load_config, errors::AppResult};
@@ -28,4 +28,14 @@ pub fn generate_token(id: u64, email: &str, role: &str) -> AppResult<String> {
     )?;
 
     Ok(token)
+}
+
+pub fn decode_jwt(token: &str) -> AppResult<Claims> {
+    let conf = load_config().jwt;
+    let decode = decode::<Claims>(
+        token,
+        &DecodingKey::from_secret(conf.secret.as_bytes()),
+        &Validation::default(),
+    )?;
+    Ok(decode.claims)
 }
