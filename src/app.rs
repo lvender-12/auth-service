@@ -12,7 +12,7 @@ use crate::{
 
 pub fn create_app(state: AppState) -> Router {
     Router::new()
-        .merge(guest_router())
+        .merge(guest_router(state.clone()))
         .merge(auth_router(state.clone()))
         .fallback(not_found)
         .layer(from_fn_with_state(state.clone(), api_auth))

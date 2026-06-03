@@ -18,7 +18,7 @@ pub async fn db_connection() -> Result<Pool<Postgres>, DbError> {
     let pool = PgPoolOptions::new()
         .min_connections(10)
         .max_connections(100)
-        .acquire_timeout(Duration::from_mins(30))
+        .acquire_timeout(Duration::from_secs(5))
         .idle_timeout(Duration::from_mins(60))
         .connect(&url)
         .await?;

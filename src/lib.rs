@@ -3,6 +3,7 @@ pub mod config;
 pub mod dto;
 pub mod entity;
 pub mod errors;
+pub mod graphql;
 pub mod handlers;
 pub mod middleware;
 pub mod models;

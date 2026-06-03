@@ -17,9 +17,11 @@ async fn main() {
     };
     let app = create_app(state);
 
-    let listener = tokio::net::TcpListener::bind(host)
+    let listener = tokio::net::TcpListener::bind(host.clone())
         .await
         .expect("something wrong in listener");
+
+    println!("Server is running on {}", host);
 
     axum::serve(listener, app)
         .await
