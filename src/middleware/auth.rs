@@ -1,10 +1,22 @@
-use axum::{body::Body, extract::Request, middleware::Next, response::Response};
+use axum::{
+    body::Body,
+    extract::{Request, State},
+    middleware::Next,
+    response::Response,
+};
 use jsonwebtoken::{DecodingKey, Validation};
 
-use crate::{config::config::load_config, errors::api_error::ApiError, models::jwt_model::Claims};
+use crate::{
+    errors::api_error::ApiError,
+    models::{jwt_model::Claims, state_model::AppState},
+};
 
-pub async fn api_auth(req: Request<Body>, next: Next) -> Result<Response, ApiError> {
-    let config = load_config().await;
+pub async fn api_auth(
+    State(state): State<AppState>,
+    req: Request<Body>,
+    next: Next,
+) -> Result<Response, ApiError> {
+    let config = state.config;
 
     let api_key = req.headers().get("X-api-key").and_then(|v| v.to_str().ok());
 
@@ -17,8 +29,12 @@ pub async fn api_auth(req: Request<Body>, next: Next) -> Result<Response, ApiErr
     }
 }
 
-pub async fn jwt_auth(mut req: Request<Body>, next: Next) -> Result<Response, ApiError> {
-    let config = load_config().await;
+pub async fn jwt_auth(
+    State(state): State<AppState>,
+    mut req: Request<Body>,
+    next: Next,
+) -> Result<Response, ApiError> {
+    let config = state.config;
 
     let token = req
         .headers()

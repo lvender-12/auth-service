@@ -6,14 +6,18 @@ use crate::{
         },
     },
     errors::services_error::ServiceError,
+    models::state_model::AppState,
     repository::user_repository::{check_user_exists, create_user, login_user_repo},
     utils::util::{generate_token, password_hash, password_verify},
 };
 
-pub async fn register_user(dto: CreateUserDto) -> Result<UserResponseDto, ServiceError> {
+pub async fn register_user(
+    state: &AppState,
+    dto: CreateUserDto,
+) -> Result<UserResponseDto, ServiceError> {
     let password = password_hash(dto.password)?;
 
-    let user_exists = check_user_exists(&dto.nim, dto.email.as_deref()).await?;
+    let user_exists = check_user_exists(&state, &dto.nim, dto.email.as_deref()).await?;
     if user_exists {
         return Err(ServiceError::UserAlreadyExists);
     }
@@ -41,8 +45,11 @@ pub async fn register_user(dto: CreateUserDto) -> Result<UserResponseDto, Servic
     })
 }
 
-pub async fn login_user(dto: LoginUserDto) -> Result<LoginResponseDto, ServiceError> {
-    let user = login_user_repo(&dto.nim).await?;
+pub async fn login_user(
+    state: &AppState,
+    dto: LoginUserDto,
+) -> Result<LoginResponseDto, ServiceError> {
+    let user = login_user_repo(&state, &dto.nim).await?;
 
     password_verify(&dto.password, &user.password)?;
 
